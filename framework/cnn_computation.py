@@ -63,7 +63,7 @@ def convolve(rgb_matrix: np.ndarray, kernels: np.ndarray, kernel: dict = KernelC
 
 # Notes: D. Matthew. (2017). Feature extracted by max pooling vs mean pooling. https://stats.stackexchange.com/questions/291451/feature-extracted-by-max-pooling-vs-mean-pooling
 def pool(feature_map: np.ndarray, pool_size: int = 2, pool_stride: int = 2, pool_mode: str = 'max', kernel: dict = KernelConfig()) -> np.ndarray:
-    ML.start('max_pooling', {'feature_map': type(feature_map), 'pool_size': type(pool_size), 'pool_mode': type(pool_mode)})
+    ML.start('pool', {'feature_map': type(feature_map), 'pool_size': type(pool_size), 'pool_mode': type(pool_mode)})
 
     # Sets pooled map metadata.
     input_height, input_width, _ = feature_map.shape
