@@ -32,7 +32,7 @@ def generate_kernels(kernel: dict = KernelConfig()) -> np.ndarray:
 
     # Generates kernel.num amount of kernels 3x3 kernels each with 3 channels for RGB, or simply 3x3x3x16.
     kernels = np.random.randn(kernel.size, kernel.size, 3, kernel.num) * kernel.weight
-    log(f"VARIABLE   kernels.shape = {kernels.shape} | info.kernel_weight = {kernel.weight}")
+    log(f"VARIABLE   kernels.shape = {kernels.shape}")
 
 
     ML.end(status=1, return_val=kernels)
@@ -81,10 +81,12 @@ def pool(feature_map: np.ndarray, pool_size: int = 2, pool_stride: int = 2, pool
     ML.end(1, pooled_map)
     return pooled_map
 
+'''
 np.random.seed(1)
 rand_matrix_1 = np.random.randint(50, 201, size=(6, 7))
 rand_matrix_2 = np.random.randint(50, 201, size=(7, 9))
 multiply_matrices(matrix_1=rand_matrix_1, matrix_2=rand_matrix_2)
+'''
 
 img_path: str = '../images/cat.png'
 test_rgb_matrix: np.ndarray = generate_RGB_matrix(img_path)

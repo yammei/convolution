@@ -32,8 +32,9 @@ class MethodLog:
 
     # Logs the actual data type of the arguments being passed, rather than the ones suggested to be passed.
     def start(self, func_name: str, args: dict):
+        cutoff: int = 0
         arg_string: str = strip_data_type(args)
-        arg_string_dynamic: str = arg_string if len(arg_string) < len(border_text)-30 else f"{arg_string[:len(border_text)-30]} ...\n           -{arg_string[len(border_text)-30:]}" if len(arg_string) > len(border_text)-30 else "Arguments have not been detailed."
+        arg_string_dynamic: str = arg_string if len(arg_string) < len(border_text)-cutoff else f"{arg_string[:len(border_text)-cutoff]} ...\n           -{arg_string[len(border_text)-cutoff:]}" if len(arg_string) > len(border_text)-cutoff else "Arguments have not been detailed."
 
         self.increment()
         border(f"■ {self.method_logs_count} ")

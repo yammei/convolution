@@ -5,7 +5,7 @@ from method_logger import ML, log
 img_path: str = '../images/cat.png'
 
 def generate_RGB_matrix(img_path: str) -> np.ndarray:
-    ML.start(func_name='translate_image_to_rgb_matrix', args={'img_path': type(img_path)})
+    ML.start(func_name='generate_RGB_matrix', args={'img_path': type(img_path)})
 
     image = Image.open(img_path)
     image_rgb = image.convert('RGB')
