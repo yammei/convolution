@@ -1,5 +1,5 @@
 import numpy as np
-from method_logger import *
+from method_logger import ML, log
 from img_translation import *
 
 class KernelConfig:
@@ -10,7 +10,6 @@ class KernelConfig:
         self.stride: int = 1
 
 KC = KernelConfig()
-ML = MethodLog()
 
 def multiply_matrices(matrix_1: np.array, matrix_2: np.array) -> np.ndarray:
     ML.start(func_name='multiply_matrices', args={'matrix_1': type(matrix_1.shape), 'matrix_2': type(matrix_2.shape)})
@@ -53,11 +52,12 @@ def convolve_matrices(rgb_matrix: np.ndarray, kernels: np.ndarray, kernel_config
     ML.end(1, [[]])
     return [[]]
 
-
 np.random.seed(1)
 rand_matrix_1 = np.random.randint(50, 201, size=(6, 7))
 rand_matrix_2 = np.random.randint(50, 201, size=(7, 9))
 multiply_matrices(matrix_1=rand_matrix_1, matrix_2=rand_matrix_2)
 
 img_path: str = '../images/cat.png'
-convolve_matrices(rgb_matrix=generate_RGB_matrix(img_path), kernels=generate_kernels())
+test_rgb_matrix: np.ndarray = generate_RGB_matrix(img_path)
+default_kernels: np.ndarray = generate_kernels()
+convolve_matrices(rgb_matrix=test_rgb_matrix, kernels=default_kernels)

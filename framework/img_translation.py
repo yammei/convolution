@@ -1,8 +1,7 @@
 from PIL import Image
 import numpy as np
-from method_logger import *
+from method_logger import ML, log
 
-ML = MethodLog()
 img_path: str = '../images/cat.png'
 
 def generate_RGB_matrix(img_path: str) -> np.ndarray:
@@ -12,7 +11,7 @@ def generate_RGB_matrix(img_path: str) -> np.ndarray:
     image_rgb = image.convert('RGB')
     width, height = image_rgb.size
 
-    log(f"Image Size: ({width}, {height}).")
+    log(f"VARIABLE   width, height = ({width}, {height})")
 
     rgb_matrix: np.ndarray = np.zeros((width, height, 3), dtype=np.uint8)
 
@@ -23,6 +22,3 @@ def generate_RGB_matrix(img_path: str) -> np.ndarray:
 
     ML.end(status=1, return_val=rgb_matrix)
     return rgb_matrix
-
-rgb_matrix = generate_RGB_matrix(img_path)
-log(f"RGB Matrix: {rgb_matrix[1][1]}")
