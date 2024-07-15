@@ -25,4 +25,4 @@ def translate_image_to_rgb_matrix(img_path: str) -> np.ndarray:
     return rgb_matrix
 
 rgb_matrix = translate_image_to_rgb_matrix(img_path)
-log(f"RGB Matrix: \n{rgb_matrix}.")
+log(f"RGB Matrix: {rgb_matrix[1][1]}")
