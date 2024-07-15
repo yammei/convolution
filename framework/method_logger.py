@@ -17,7 +17,7 @@ def border(stmt: any = '') -> None:
 # Cleans data type output.
 def strip_data_type(arg_string: str) -> str:
     arg_string: str = str(arg_string)[1:len(str(arg_string))-1].replace("'","").replace("class","").replace("<","").replace(">","").replace("__main__.","")
-    arg_string = re.sub(r'\s+',' ',arg_string)        
+    arg_string = re.sub(r'\s+',' ',arg_string)
     return arg_string
 
 # Class for logging method details.
@@ -43,7 +43,7 @@ class MethodLog:
     def end(self, status: str, return_val: any):
         status_case: str = "Success" if status == 1 else "Failed" if status == 0 else "Unset Status"
         return_type: str = strip_data_type(str(type(return_val)))
-        return_size: str = str(sys.getsizeof(return_val)*10**(-3))+"KB"
+        return_size: str = f"{sys.getsizeof(return_val)*10**(-3):.3f}KB"
 
         log(f"RETURN     Status: {status_case} | Type:{return_type} | Size: {return_size}\n")
 
