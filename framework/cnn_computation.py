@@ -34,7 +34,6 @@ def generate_kernels(kernel: dict = KernelConfig()) -> np.ndarray:
     kernels = np.random.randn(kernel.size, kernel.size, 3, kernel.num) * kernel.weight
     log(f"VARIABLE   kernels.shape = {kernels.shape}")
 
-
     ML.end(status=1, return_val=kernels)
     return kernels
 
