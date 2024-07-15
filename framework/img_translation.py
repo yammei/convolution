@@ -2,10 +2,10 @@ from PIL import Image
 import numpy as np
 from method_logger import *
 
-ML = method_log()
+ML = MethodLog()
 img_path: str = '../images/cat.png'
 
-def translate_image_to_rgb_matrix(img_path: str) -> np.ndarray:
+def generate_RGB_matrix(img_path: str) -> np.ndarray:
     ML.start(func_name='translate_image_to_rgb_matrix', args={'img_path': type(img_path)})
 
     image = Image.open(img_path)
@@ -24,5 +24,5 @@ def translate_image_to_rgb_matrix(img_path: str) -> np.ndarray:
     ML.end(status=1, return_val=rgb_matrix)
     return rgb_matrix
 
-rgb_matrix = translate_image_to_rgb_matrix(img_path)
+rgb_matrix = generate_RGB_matrix(img_path)
 log(f"RGB Matrix: {rgb_matrix[1][1]}")

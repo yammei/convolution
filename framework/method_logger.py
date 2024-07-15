@@ -21,7 +21,7 @@ def strip_data_type(arg_string: str) -> str:
     return arg_string
 
 # Class for logging method details.
-class method_log:
+class MethodLog:
 
     def __init__(self):
         self.method_logs_count: int = 0
