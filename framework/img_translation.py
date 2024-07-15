@@ -1,9 +1,9 @@
 from PIL import Image
 import numpy as np
-from log import *
+from method_logger import *
 
 ML = method_log()
-img_path: str = './images/cat.png'
+img_path: str = '../images/cat.png'
 
 def translate_image_to_rgb_matrix(img_path: str) -> np.ndarray:
     ML.start(func_name='translate_image_to_rgb_matrix', args={'img_path': type(img_path)})

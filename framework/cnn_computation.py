@@ -1,5 +1,5 @@
 import numpy as np
-from log import *
+from method_logger import *
 
 ML = method_log()
 
