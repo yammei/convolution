@@ -169,10 +169,10 @@ def log_details() -> None:
     computation_details = [
         ["generate_RGB_matrix()",   f"{len(feature_map.shape)}",        f"{feature_map.shape}",     f"{sum(sum(sum(feature_map))):.2f}"],
         ["generate_kernels()",      f"{len(default_kernels.shape)}",    f"{default_kernels.shape}", f"{sum(sum(sum(sum(default_kernels)))):.2f}"],
-        ["convolution",             f"{len(feature_map.shape)}",        f"{feature_map.shape}",     f"{sum(sum(sum(feature_map))):.2f}"],
-        ["pool",                    f"{len(pooled_map.shape)}",         f"{pooled_map.shape}",      f"{sum(sum(sum(pooled_map))):.2f}"],
-        ["flat",                    f"{len(flattened_map.shape)}",      f"{flattened_map.shape}",   f"{sum(flattened_map):.2f}"],
-        ["dense",                   f"{len(weighted_map.shape)}",       f"{weighted_map.shape}",    f"{sum(weighted_map):.2f}"]
+        ["convolution()",           f"{len(feature_map.shape)}",        f"{feature_map.shape}",     f"{sum(sum(sum(feature_map))):.2f}"],
+        ["pool()",                  f"{len(pooled_map.shape)}",         f"{pooled_map.shape}",      f"{sum(sum(sum(pooled_map))):.2f}"],
+        ["flat()",                  f"{len(flattened_map.shape)}",      f"{flattened_map.shape}",   f"{sum(flattened_map):.2f}"],
+        ["dense()",                 f"{len(weighted_map.shape)}",       f"{weighted_map.shape}",    f"{sum(weighted_map):.2f}"]
     ]
     log(tabulate(computation_details, headers=headers, tablefmt='psql'))
     log(f"\n")
