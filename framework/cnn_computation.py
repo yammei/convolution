@@ -31,7 +31,7 @@ def generate_kernels(kernel: dict = KernelConfig()) -> np.ndarray:
     ML.start(func_name='generate_kernels', args={'kernel_weight': type(kernel.weight), 'kernel_size': type(kernel.size), 'kernel_num': type(kernel.num)})
 
     # Generates kernel.num amount of kernels 3x3 kernels each with 3 channels for RGB, or simply 3x3x3x16.
-    kernels = np.random.randn(kernel.size, kernel.size, 3, kernel.num) * kernel.weight
+    kernels: np.ndarray = np.random.randn(kernel.size, kernel.size, 3, kernel.num) * kernel.weight
     log(f"VARIABLE   kernels.shape = {kernels.shape}")
 
     ML.end(status=1, return_val=kernels)
@@ -43,8 +43,8 @@ def convolve(rgb_matrix: np.ndarray, kernels: np.ndarray, kernel: dict = KernelC
 
     # Sets feature map metadata.
     input_height, input_width, _ = rgb_matrix.shape
-    output_height = (input_height - kernel.size) // kernel.stride + 1
-    output_width = (input_width - kernel.size) // kernel.stride + 1
+    output_height: int = (input_height - kernel.size) // kernel.stride + 1
+    output_width: int = (input_width - kernel.size) // kernel.stride + 1
     feature_map: np.ndarray = np.zeros((output_height, output_width, kernel.num))
 
     for k in range(kernel.num):
@@ -66,8 +66,8 @@ def pool(feature_map: np.ndarray, pool_size: int = 2, pool_stride: int = 2, pool
 
     # Sets pooled map metadata.
     input_height, input_width, _ = feature_map.shape
-    output_height = (input_height - pool_size) // pool_stride + 1
-    output_width = (input_width - pool_size) // pool_stride + 1
+    output_height: int = (input_height - pool_size) // pool_stride + 1
+    output_width: int = (input_width - pool_size) // pool_stride + 1
     pooled_map: np.ndarray = np.zeros((output_height, output_width, kernel.num))
 
     for k in range(kernel.num):
@@ -84,8 +84,10 @@ def pool(feature_map: np.ndarray, pool_size: int = 2, pool_stride: int = 2, pool
 # (e.g., for a 3D array of size (15, 15, 16) you have 15 * 15 * 16 or 3600 input features)
 def flat(pooled_map: np.ndarray) -> np.ndarray:
     ML.start('flat', {'pooled_map': type(pooled_map)})
-    flattened_map = pooled_map.flatten()
+
+    flattened_map: np.ndarray = pooled_map.flatten()
     log(f"VARIABLE   flattened_map.shape = {flattened_map.shape}")
+
     ML.end(1, flattened_map)
     return flattened_map
 
@@ -99,7 +101,7 @@ def dense(flattened_map: np.ndarray, neurons: int = 64) -> np.ndarray:
 
     # Dot product operation. Creates n-amount of neurons with weighed then biased input features.
     # SUM from j=0 to n=neurons of WEIGHT_ij * INPUT_i
-    weighted_map = np.dot(weights, flattened_map) + biases
+    weighted_map: np.ndarray = np.dot(weights, flattened_map) + biases
 
     log(f"VARIABLE   flattend_map.shape = {flattened_map.shape} | weights.shape = {weights.shape} | weighted_map.shape = {weighted_map.shape}")
 
@@ -116,12 +118,13 @@ multiply_matrices(matrix_1=rand_matrix_1, matrix_2=rand_matrix_2)
 
 np.random.seed(1)
 img_path: str = '../images/cat.png'
+
 test_rgb_matrix: np.ndarray = generate_RGB_matrix(img_path)
 default_kernels: np.ndarray = generate_kernels()
-feature_map = convolve(test_rgb_matrix, default_kernels)
-pooled_map = pool(feature_map)
-flattened_map = flat(pooled_map)
-weighted_map = dense(flattened_map)
+feature_map: np.ndarray     = convolve(test_rgb_matrix, default_kernels)
+pooled_map: np.ndarray      = pool(feature_map)
+flattened_map: np.ndarray   = flat(pooled_map)
+weighted_map: np.ndarray    = dense(flattened_map)
 
 log(f"\n■ Computation Details ■\n\n")
 log(f"CUM SUM    feature_map:   {sum(sum(sum(feature_map))):.3f}")
