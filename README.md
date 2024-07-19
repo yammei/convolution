@@ -47,9 +47,32 @@ RETURN     Status: Success | Type: numpy.ndarray | Size: 28.912KB
 ■ 6 ■                                                                           
 
 
-METHOD     dense(flattened_map: numpy.ndarray, neurons: int)
+METHOD     dense(flattened_map: numpy.ndarray, neurons: int, activation: none)
 VARIABLE   flattend_map.shape = (3600,) | weights.shape = (64, 3600) | weighted_map.shape = (64,)
 RETURN     Status: Success | Type: numpy.ndarray | Size: 0.624KB
+
+
+■ 7 ■                                                                           
+
+
+METHOD     relu(x: numpy.ndarray)
+RETURN     Status: Success | Type: numpy.ndarray | Size: 0.624KB
+
+
+■ 8 ■                                                                           
+
+
+METHOD     dense(flattened_map: numpy.ndarray, neurons: int, activation: none)
+VARIABLE   flattend_map.shape = (64,) | weights.shape = (32, 64) | weighted_map.shape = (32,)
+RETURN     Status: Success | Type: numpy.ndarray | Size: 0.368KB
+
+
+■ 9 ■                                                                           
+
+
+METHOD     softmax(x: numpy.ndarray)
+VARIABLE   sorted(probabilities[0:5]) = [0.0, 0.0, 0.0, 0.0, 0.0]
+RETURN     Status: Success | Type: numpy.ndarray | Size: 0.368KB
 
 
 ■ Computation Details ■
@@ -64,8 +87,8 @@ RETURN     Status: Success | Type: numpy.ndarray | Size: 0.624KB
 | pool()                |       3 | (15, 15, 16)  |   2223.13 |
 | flat()                |       1 | (3600,)       |   2223.13 |
 | dense()               |       1 | (64,)         |  71171.3  |
+| dense()               |       1 | (32,)         |      1    |
 +-----------------------+---------+---------------+-----------+
-
 
 ```
 
@@ -78,4 +101,5 @@ source myenv/bin/activate
 pip3 install numpy
 pip3 install pillow
 pip3 install tabulate
+pip3 install matplotlib
 ```

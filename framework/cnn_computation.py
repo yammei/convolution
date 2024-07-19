@@ -2,6 +2,7 @@ import numpy as np
 from method_logger import ML, log
 from img_translation import *
 from tabulate import tabulate
+import matplotlib.pyplot as plt
 
 class KernelConfig:
     def __init__(self):
@@ -32,11 +33,24 @@ class Activation:
     def softmax(x: np.ndarray) -> np.ndarray:
         ML.start('softmax', {'x': type(x)})
 
-        # Element-wise subtraction of max number on all elements in input array and exponentation of e^x. x being all elements in the array.
-        exp_input_matrix = np.exp(x - np.max(x))
+        def plot(probabilities: np.ndarray) -> np.ndarray:
+            plt.plot(probabilities, marker='o', linestyle='-', color='b')
+            plt.title('Softmax Probabilities')
+            plt.xlabel('Index')
+            plt.ylabel('Value')
+            plt.show()
 
-        # e^x / SUM(e^x_0 + ... + e^x_n-1)
-        probabilities = exp_input_matrix / np.sum(exp_input_matrix, axis=1, keepdims=True)
+        if x.ndim == 1:
+            # Element-wise subtraction of max number on all elements in input array and exponentation of e^x. x being all elements in the array.
+            exp_x = np.exp(x - np.max(x))
+            # e^x / SUM(e^x_0 + ... + e^x_n-1)
+            probabilities = exp_x / np.sum(exp_x)
+            log(f"VARIABLE   sorted(probabilities[0:5]) = {sorted(probabilities[0:5])}")
+            # plot(probabilities)
+        elif x.ndim > 1:
+            exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+            probabilities = exp_x / np.sum(exp_x, axis=1, keepdims=True)
+            # plot(probabilities)
 
         ML.end(1, probabilities)
         return probabilities
@@ -128,9 +142,10 @@ def flat(pooled_map: np.ndarray) -> np.ndarray:
     return flattened_map
 
 # 1D Flattened Map * 2D (Weights * Num of Neurons) -> 2D Weighted Features Map -> 1D Sum of Weighted Features Map
+# Reference: M. Stefano. et al. (2021). Effects of hidden layer sizing on CNN fine-tuning. Future Generation Computer Systems. https://www.sciencedirect.com/science/article/abs/pii/S0167739X2033082X
 # Reference: K. Sandhya. (2021). How do determine the number of layers and neurons in the hidden layer?. Geek Culture. https://medium.com/geekculture/introduction-to-neural-network-2f8b8221fbd3
-def dense(flattened_map: np.ndarray, neurons: int = 64) -> np.ndarray:
-    ML.start('dense', {'flattened_map': type(flattened_map), 'neurons': type(neurons)})
+def dense(flattened_map: np.ndarray, neurons: int = 64, activation='none') -> np.ndarray:
+    ML.start('dense', {'flattened_map': type(flattened_map), 'neurons': type(neurons), 'activation': 'none'})
 
     features: int = flattened_map.shape[0]
     weights: np.ndarray = np.random.rand(neurons, features)
@@ -139,11 +154,27 @@ def dense(flattened_map: np.ndarray, neurons: int = 64) -> np.ndarray:
     # Dot product operation. Creates n-amount of neurons with weighed then biased input features.
     # SUM from j=0 to n=neurons of WEIGHT_ij * INPUT_i
     weighted_map: np.ndarray = np.dot(weights, flattened_map) + biases
-
     log(f"VARIABLE   flattend_map.shape = {flattened_map.shape} | weights.shape = {weights.shape} | weighted_map.shape = {weighted_map.shape}")
 
-    ML.end(1, weighted_map)
-    return weighted_map
+    if activation == 'relu':
+        ML.end(1, weighted_map)
+        return Activation.relu(weighted_map)
+    elif activation == 'softmax':
+        ML.end(1, weighted_map)
+        return Activation.softmax(weighted_map)
+    elif activation == 'none':
+        ML.end(1, weighted_map)
+        return weighted_map
+
+# Reference: R. Poojary and A. Pai. (2019). Comparative Study of Model Optimization Techniques in Fine-Tuned CNN Models. 2019 International Conference on Electrical and Computing Technologies and Applications (ICECTA). https://ieeexplore.ieee.org/abstract/document/8959681
+def cross_entropy():
+    pass
+
+def back_propagation():
+    pass
+
+def train():
+    pass
 
 '''
 # Matrix Multiplication Test Script
@@ -161,7 +192,8 @@ default_kernels: np.ndarray = generate_kernels()
 feature_map: np.ndarray     = convolution(test_rgb_matrix, default_kernels)
 pooled_map: np.ndarray      = pool(feature_map)
 flattened_map: np.ndarray   = flat(pooled_map)
-weighted_map: np.ndarray    = dense(flattened_map)
+weighted_map_1: np.ndarray  = dense(flattened_map, neurons=64, activation='relu')
+weighted_map_2: np.ndarray  = dense(weighted_map_1, neurons=32, activation='softmax')
 
 def log_details() -> None:
     log(f"\n■ Computation Details ■\n\n")
@@ -172,7 +204,8 @@ def log_details() -> None:
         ["convolution()",           f"{len(feature_map.shape)}",        f"{feature_map.shape}",     f"{sum(sum(sum(feature_map))):.2f}"],
         ["pool()",                  f"{len(pooled_map.shape)}",         f"{pooled_map.shape}",      f"{sum(sum(sum(pooled_map))):.2f}"],
         ["flat()",                  f"{len(flattened_map.shape)}",      f"{flattened_map.shape}",   f"{sum(flattened_map):.2f}"],
-        ["dense()",                 f"{len(weighted_map.shape)}",       f"{weighted_map.shape}",    f"{sum(weighted_map):.2f}"]
+        ["dense()",                 f"{len(weighted_map_1.shape)}",     f"{weighted_map_1.shape}",  f"{sum(weighted_map_1):.2f}"],
+        ["dense()",                 f"{len(weighted_map_2.shape)}",     f"{weighted_map_2.shape}",  f"{sum(weighted_map_2):.2f}"]
     ]
     log(tabulate(computation_details, headers=headers, tablefmt='psql'))
     log(f"\n")
