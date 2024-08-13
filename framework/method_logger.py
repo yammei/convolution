@@ -1,8 +1,10 @@
+from datetime import datetime
 import sys
 import re
 
 log_mode = True
-border_text = "■" + " "*75 + "\n"
+now = datetime.now().strftime("%H:%M:%S")
+border_text = f"■{" "*6}■ {now} ■\n"
 # Handles print statements.
 def log(stmt: any):
     if log_mode:
@@ -25,6 +27,8 @@ class MethodLog:
 
     def __init__(self):
         self.method_logs_count: int = 0
+        self.start_time: int = 0
+        self.end_time: int = 0
 
     def increment(self) -> None:
         self.prev_method_log_count = self.method_logs_count

@@ -1,6 +1,8 @@
 <h1>Convolutional Neural Network Framework Project</h1>
+Author Note: Most of what's left is all the back propogation. After which, I'll be testing on various image sizes to make sure everything works. Final objective is to train it on enough images to classify portraits of cats.
 
-<h1>Progress</h1>
+<h1>Project Progress</h1>
+<i>Most recent terminal output.</i><br><br>
 
 ```bash
 
