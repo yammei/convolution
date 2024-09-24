@@ -2,7 +2,7 @@ from PIL import Image
 import numpy as np
 from method_logger import ML, log
 
-img_path: str = '../images/cat.png'
+img_path: str = '../images/training/img1.png'
 
 def generate_RGB_matrix(img_path: str) -> np.ndarray:
     ML.start(func_name='generate_RGB_matrix', args={'img_path': type(img_path)})
