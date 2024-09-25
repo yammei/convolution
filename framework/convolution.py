@@ -241,24 +241,29 @@ class Computation:
 
     @staticmethod
     def back_propagation_conv(predicted_output: np.ndarray, labels: np.ndarray, kernels: np.ndarray, kernel: KernelConfig) -> tuple:
+        ML.start('back_propagation_conv', {'predicted_output': type(predicted_output), 'labels': type(labels), 'kernels': type(kernels)})
+
         gradient_output: np.ndarray = predicted_output - labels
-        input_height, input_width, _ = input.shape
+        batches, input_height, input_width, kernel_num = predicted_output.shape
         derivative_kernels: np.ndarray = np.zeros_like(kernels)
-        derivative_predicted_ouput: np.ndarray = np.zeros_like(predicted_output)
+        derivative_predicted_output: np.ndarray = np.zeros_like(predicted_output)
 
-        for k in range(kernels.shape[3]):
-            for i in range(0, input_height - kernel.size + 1, kernel.stride):
-                for j in range(0, input_width - kernel.size + 1, kernel.stride):
-                    derivative_kernels[:, :, :, k] += predicted_output[i:i+kernel.size, :] * gradient_output[i//kernel.stride, j//kernel.stride, k]
-                    derivative_predicted_ouput[i:i+kernel.size, j:j+kernel.size, :] += kernels[:, :, :, k] * gradient_output[i//kernel.stride, j//kernel.stride, k]
+        for b in range(batches):
+            for k in range(kernel_num):
+                for i in range(0, input_height - kernel.size + 1, kernel.stride):
+                    for j in range(0, input_width - kernel.size + 1, kernel.stride):
+                        for c in range(kernels.shape[2]):
+                            derivative_kernels[:, :, c, k] += np.sum(predicted_output[b, i:i+kernel.size, j:j+kernel.size, c] * gradient_output[b, i//kernel.stride, j//kernel.stride, k])
+                            derivative_predicted_output[b, i:i+kernel.size, j:j+kernel.size, c] += kernels[:, :, c, k] * gradient_output[b, i//kernel.stride, j//kernel.stride, k]
 
-        log(f"VARIABLE   derivative_predicted_ouput.shape = {derivative_predicted_ouput.shape} | derivative_kernels.shape = {derivative_kernels.shape}")
+        log(f"VARIABLE   derivative_predicted_output.shape = {derivative_predicted_output.shape} | derivative_kernels.shape = {derivative_kernels.shape}")
 
-        return derivative_predicted_ouput, derivative_kernels
+        ML.end(1, (derivative_predicted_output, derivative_kernels))
+        return derivative_predicted_output, derivative_kernels
 
     @staticmethod
-    def update_parameters(weights: np.ndarray, biases: np.ndarray, gradient_weights: np.ndarray, gradient_biases: np.ndarray, learning_rate: float) -> tuple:
-        ML.start('update_parameters', {'weights': type(weights), 'biases': type(biases), 'gradient_weights': type(gradient_weights), 'gradient_biases': type(gradient_biases), 'learning_rate': learning_rate})
+    def update_weights_and_biases(weights: np.ndarray, biases: np.ndarray, gradient_weights: np.ndarray, gradient_biases: np.ndarray, learning_rate: float = 0.001) -> tuple:
+        ML.start('update_weights_and_biases', {'weights': type(weights), 'biases': type(biases), 'gradient_weights': type(gradient_weights), 'gradient_biases': type(gradient_biases), 'learning_rate': learning_rate})
 
         updated_weights = weights - (learning_rate * gradient_weights)
         updated_biases = biases - (learning_rate * gradient_biases)
@@ -267,6 +272,17 @@ class Computation:
 
         ML.end(1, (updated_weights, updated_biases))
         return updated_weights, updated_biases
+
+    @staticmethod
+    def updated_kernels(currnels: np.ndarray, gradient_kernels: np.ndarray, learning_rate: float = 0.001) -> tuple:
+        ML.start('updated_kernels', {'currnels': type(currnels), 'gradient_kernels': type(gradient_kernels), 'learning_rate': learning_rate})
+
+        updated_kernels = batch_default_kernels - (0.001 * gradient_kernels)
+
+        log(f"VARIABLE   updated_weights.shape = {updated_kernels.shape}")
+
+        ML.end(1, updated_kernels)
+        return updated_kernels
 
     # Parent method for training process.
     @staticmethod
@@ -319,7 +335,7 @@ gradient_input_2, gradient_weights_2, gradient_biases_2 = Computation.back_propa
     weights=weights_2,
     activation='softmax'
 )
-updated_weights_2, updated_biases_2 = Computation.update_parameters(
+updated_weights_2, updated_biases_2 = Computation.update_weights_and_biases(
     weights=weights_2,
     biases=biases_2,
     gradient_weights=gradient_weights_2,
@@ -335,7 +351,7 @@ gradient_input_1, gradient_weights_1, gradient_biases_1 = Computation.back_propa
     weights=weights_1,
     activation='relu'
 )
-updated_weights_1, updated_biases_1 = Computation.update_parameters(
+updated_weights_1, updated_biases_1 = Computation.update_weights_and_biases(
     weights=weights_1,
     biases=biases_1,
     gradient_weights=gradient_weights_1,
@@ -344,14 +360,14 @@ updated_weights_1, updated_biases_1 = Computation.update_parameters(
 )
 
 # 3. Backpropagation through convolutional layer
-gradient_kernels, gradient_input_conv = Computation.back_propagation_conv(
-    predicted_output=gradient_input_1,
+_, gradient_kernels = Computation.back_propagation_conv(
+    predicted_output=batch_feature_map,
     labels=batch_feature_map,
     kernels=batch_default_kernels,
     kernel=KernelConfig()
 )
 # Update the convolutional kernels
-updated_kernels = batch_default_kernels - (0.001 * gradient_kernels)
+updated_kernels = Computation.updated_kernels(currnels=batch_default_kernels, gradient_kernels=gradient_kernels, learning_rate=.001)
 
 def log_details() -> None:
     log(f"\n■ Computation Details ■\n\n")
@@ -361,49 +377,50 @@ def log_details() -> None:
             "generate_RGB_matrix()",
             f"{len(batch_rgb_matrix.shape)}",
             f"{batch_rgb_matrix.shape}",
-            f"{sum(sum(sum(batch_rgb_matrix))):.2f}"
+            f"{np.sum(batch_rgb_matrix):.2f}"
         ],
         [
             "generate_kernels()",
             f"{len(batch_default_kernels.shape)}",
             f"{batch_default_kernels.shape}",
-            f"{sum(sum(sum(sum(batch_default_kernels)))):.2f}"
+            f"{np.sum(batch_default_kernels):.2f}"
         ],
         [
             "convolution()",
             f"{len(batch_feature_map.shape)}",
             f"{batch_feature_map.shape}",
-            f"{sum(sum(sum(batch_feature_map))):.2f}"
+            f"{np.sum(batch_feature_map):.2f}"
         ],
         [
             "pool()",
             f"{len(batch_pooled_map.shape)}",
             f"{batch_pooled_map.shape}",
-            f"{sum(sum(sum(batch_pooled_map))):.2f}"
+            f"{np.sum(batch_pooled_map):.2f}"
         ],
         [
             "flat()",
             f"{len(flattened_map.shape)}",
             f"{flattened_map.shape}",
-            f"{sum(flattened_map):.2f}"
+            f"{np.sum(flattened_map):.2f}"
         ],
         [
             "dense()",
             f"{len(activated_weighted_map_1.shape)}",
             f"{activated_weighted_map_1.shape}",
-            f"{sum(activated_weighted_map_1):.2f}"
+            f"{np.sum(activated_weighted_map_1):.2f}"
         ],
         [
             "dense()",
             f"{len(activated_weighted_map_2.shape)}",
             f"{activated_weighted_map_2.shape}",
-            f"{sum(activated_weighted_map_2):.2f}"
+            f"{np.sum(activated_weighted_map_2):.2f}"
         ]
     ]
     log(tabulate(computation_details, headers=headers, tablefmt='psql'))
     log(f"\n")
 
 log_details()
+
 
 # Resources
 # L. Yongxin et al. (2023). Zero-Bias Deep Learning for Accurate Identification of Internet-of-Things (IoT) Devices. IEEE Internet of Things Journal. https://ieeexplore.ieee.org/document/9173537
